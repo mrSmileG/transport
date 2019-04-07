@@ -10,6 +10,12 @@ type Event struct {
 	message string
 }
 
+//Error info data structure
+type Error struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
 // StandardLogger enforces specific log message formats
 type StandardLogger struct {
 	*logrus.Logger

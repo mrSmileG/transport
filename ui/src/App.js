@@ -3,7 +3,8 @@ import './App.css';
 import Layout from './components/Layout';
 import NewTaskModal from './components/NewTaskModal';
 import Matrix from './components/Matrix';
-import { Card, Button } from 'semantic-ui-react';
+import { Card, Button, Message, Form } from 'semantic-ui-react';
+import SolutionTable from './components/SolutionTable';
 
 class App extends Component {
   state = {
@@ -14,32 +15,44 @@ class App extends Component {
     rows: [],
     columns: [],
     columnsCons: [],
-    error: null,
+    errorMessage: '',
     isLoaded: false,
-    items: []
+    loading: false,
+    items: [],
+    provVector: [],
+    consVector: [],
+    prices: []
   };
 
-  initialState = {
-    providersCount: '',
-    consumersCount: '',
-    providers: [],
-    consumers: [],
-    rows: [],
-    columns: [],
-    columnsCons: []
-  };
+  updateProvider = (rows) => {
+    this.setState({
+      provVector: rows
+    });
+  }
 
+  updateConsumer = (rows) => {
+    this.setState({
+      consVector: rows
+    });
+  }
 
-  updateDate = (providers, consumers) => {
+  updatePrices = (rows) => {
+    this.setState({
+      prices: rows
+    });
+  }
+
+  updateData = (providers, consumers) => {
     this.setState({ providersCount: providers });
     this.setState({ consumersCount: consumers });
+
     this.setState({
+      columns: [],
+      rows: [],
       providers: [],
       consumers: [],
-      rows: [],
-      columns: [],
       columnsCons: []
-    });
+    })
   }
 
   renderMatrix() {
@@ -50,7 +63,8 @@ class App extends Component {
       consumers,
       rows,
       columns,
-      columnsCons
+      columnsCons,
+      loading
     } = this.state;
 
     const items = [
@@ -58,7 +72,7 @@ class App extends Component {
           header: 'Providers vector data',
           meta: 'P1 - P(n) - Providers. Enter the resources count of every provider',
           description: (
-            <Matrix providersCount={providersCount} rows={providers} columns={columns} />
+            <Matrix providersCount={providersCount} rows={providers} columns={columns} update={this.updateProvider} />
           ),
           fluid: true,
           style: {padding: '20px 40px'}
@@ -67,7 +81,7 @@ class App extends Component {
           header: 'Consumers vector data',
           meta: 'C1 - C(n) - Consumers. Enter the resources count to need for every consumer',
           description: (
-            <Matrix providersCount={consumersCount} rows={consumers} columns={columnsCons} />
+            <Matrix providersCount={consumersCount} rows={consumers} columns={columnsCons} update={this.updateConsumer} />
           ),
           fluid: true,
           style: {padding: '20px 40px'}
@@ -76,14 +90,28 @@ class App extends Component {
           header: 'Matrix of prices',
           meta: 'Enter the delivery prices from every provider to every consumer',
           description: (
-            <Matrix providersCount={providersCount} consumersCount={consumersCount} rows={rows} columns={columns} />
+            <Matrix providersCount={providersCount} consumersCount={consumersCount} rows={rows} columns={columns} update={this.updatePrices} />
           ),
           fluid: true,
           style: {padding: '20px 40px'}
       }
-  ];
+    ];
+
+    
 
     if (providersCount > 0 && consumersCount > 0) {
+
+      for (let i = 0; i < providersCount; i++){
+        columns.pop();
+      }
+      for (let i = 0; i < consumersCount; i++){
+          rows.pop();
+          columnsCons.pop();
+      }
+      providers.pop();
+      consumers.pop();
+
+
       for (let i = 0; i < providersCount; i++){
         columns.push({ key: i, name: "P"+(i+1), editable: true })
       }
@@ -95,36 +123,75 @@ class App extends Component {
       consumers.push({0: ''});
       return <div> 
           <Card.Group style={{ marginTop: '70px', textAlign: 'left' }} itemsPerRow="1" items={items} />
+          <Button 
+              positive 
+              floated="right"
+              onClick={this.solve} 
+              icon="check"
+              content="Get Solution"
+              loading={loading} 
+              disabled={loading} 
+              style={{margin: '20px  0'}}
+          />
+          {this.renderSolution()}
         </div>
     }
   }
 
   solve = () => {
-    fetch('https://warm-ridge-60909.herokuapp.com/transport/', {
+
+    this.setState({
+      errorMessage: '',
+      loading: true
+    });
+
+    if (this.state.provVector[0] === undefined) return;
+    fetch('https://mighty-shelf-82507.herokuapp.com/', {
         method: 'POST',
-        mode: 'no-cors',
         body: JSON.stringify({ 
-          providers: [12, 40, 33], 
-          consumers: [20, 30, 10], 
-          prices: [[3, 5, 7], [2, 4, 6], [9, 1, 8]]
+          // // providers: [12, 40, 33],
+          // //     consumers: [20, 30, 10],
+          // //     prices: [[3, 5, 7], [2, 4, 6], [9, 1, 8]]
+          // providers: [12, 40, 33], 
+          // consumers: [20, 30, 10], 
+          // prices: [[3, 5, 7], [2, 4, 6], [9, 1, 8]]
+
+
+            providers: Object.values(
+              this.state.provVector[0])
+              .map(item => (parseInt(item, 10))),
+            consumers: Object.values(
+              this.state.consVector[0])
+              .map(item => (parseInt(item, 10))),
+            prices: Object.values(
+              this.state.prices)
+              .map(items => Object.values(items).map(item => (parseInt(item, 10))))
         })
       })
-      .then(function(res){ return res; })
-      .then(function(data){ console.log( data.json() )})
+      .then(res => res.json())
+      .then((result) => {
+          this.setState({
+            isLoaded: true,
+            items: result
+          });
+        },
+        (error) => {
+          this.setState({
+            isLoaded: true,
+            errorMessage: error.message
+          });
+        }
+      )
+
+    this.setState({
+        loading: false
+    });
   }
 
   renderSolution() {
     const { items } = this.state;
       return (
-        
-        JSON.stringify(items)
-        // <ul>
-        //   {items.map(item => (
-        //     <li key={item.name}>
-        //       {item.name} {item.price}
-        //     </li>
-        //   ))}
-        // </ul>
+        <SolutionTable data={items} />
       );
     
   }
@@ -132,16 +199,11 @@ class App extends Component {
   render() {
     return (
         <Layout>
-          <NewTaskModal updateData={this.updateDate} />
+           <Form  error={!!this.state.errorMessage}>
+            <Message  error header="Oops!" content={this.state.errorMessage} />
+          </Form>
+          <NewTaskModal updateData={this.updateData} />
           {this.renderMatrix()}
-          <Button 
-              positive 
-              onClick={this.solve} 
-              icon="cancel"
-              content="Get Solution"
-              style={{marginRight: '10px'}}
-          />
-          {this.renderSolution()}
         </Layout>
     );
   }

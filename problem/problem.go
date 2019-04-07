@@ -4,8 +4,6 @@ import (
 	"container/list"
 	"fmt"
 	"math"
-
-	"github.com/mrsmileg/transp/logger"
 )
 
 //Problem structure, describes transportation problem states
@@ -16,26 +14,25 @@ type Problem struct {
 	Deliveries [][]Delivery `json:"deliveries"`
 }
 
+//Point on delivery matrix
 type Point struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 }
 
+//Delivery data structure
 type Delivery struct {
 	Count float64 `json:"count"`
 	Price float64 `json:"price"`
 	Point `json:"point"`
 }
 
-//Logger instance
-var Logger = logger.NewLogger()
-
 //EpsPotential represents epsila constant to check degenerative function
 const EpsPotential = 0.001
 
 var defaultDelivery = Delivery{}
 
-//GetSolution gets solution of transportation problem by using of petentials method
+//GetSolution gets solution of transportation problem by using of potentials method
 func (problem *Problem) GetSolution() [][]Delivery {
 	problem.normalize()
 	problem.basePlan()

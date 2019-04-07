@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Button, Modal, Header, Input, Message, Form } from 'semantic-ui-react';
-//import { Router } from '../routes';
 
 class NewTaskModal extends Component {
     state = {
@@ -65,7 +64,7 @@ class NewTaskModal extends Component {
                     floated="right"
                     content="New Task"
                     icon="add circle"
-                    style={{display: 'block'}}
+                    style={{display: 'block', marginTop: '10px'}}
                     onClick={this.open}
                 />}
                 size="mini"

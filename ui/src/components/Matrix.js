@@ -2,9 +2,19 @@ import ReactDataGrid from "react-data-grid";
 import React, { Component } from 'react';
 
 class Matrix extends Component {
+  static async getInitialProps(props) {
+    const {
+      columns,
+      rows
+    } = props.query;
+
+    return { 
+      columns,
+      rows
+     };
+  }
+
   state = {
-    prividersCount: this.props.prividersCount,
-    consumersCount: this.props.consumersCount,
     columns: this.props.columns,
     rows: this.props.rows
   };
@@ -15,24 +25,23 @@ class Matrix extends Component {
       for (let i = fromRow; i <= toRow; i++) {
         rows[i] = { ...rows[i], ...updated };
       }
+      this.props.update(rows);
       return { rows };
     });
   };
 
   render() {
     const {
-      columns,
       rows
     } = this.state;
     return (
       <div style={{margin: '20px 0'}}>
         <ReactDataGrid
-        columns={columns}
+        columns={this.props.columns}
         rowGetter={i => rows[i]}
         rowsCount={rows.length}
         onGridRowsUpdated={this.onGridRowsUpdated}
-        enableCellSelect={true}
-        minHeight={35+35*rows.length+"px"}
+        enableCellSelect={true}             
     />
 
       </div>
