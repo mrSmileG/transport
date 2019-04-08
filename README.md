@@ -2,7 +2,7 @@
 
 **Tranpsportation problem solver**
 
-To get a solution, please, use base [react UI url](https://pure-reaches-12952.herokuapp.com/) or send the *POST* request to the [API Service](https://mighty-shelf-82507.herokuapp.com/)
+To get a solution, please, use base [react UI](https://pure-reaches-12952.herokuapp.com/) or send the *POST* request to the [API Service](https://mighty-shelf-82507.herokuapp.com/)
 
 *Body example:*
 
