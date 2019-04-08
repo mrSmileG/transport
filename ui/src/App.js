@@ -149,14 +149,6 @@ class App extends Component {
     fetch('https://mighty-shelf-82507.herokuapp.com/', {
         method: 'POST',
         body: JSON.stringify({ 
-          // // providers: [12, 40, 33],
-          // //     consumers: [20, 30, 10],
-          // //     prices: [[3, 5, 7], [2, 4, 6], [9, 1, 8]]
-          // providers: [12, 40, 33], 
-          // consumers: [20, 30, 10], 
-          // prices: [[3, 5, 7], [2, 4, 6], [9, 1, 8]]
-
-
             providers: Object.values(
               this.state.provVector[0])
               .map(item => (parseInt(item, 10))),
