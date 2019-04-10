@@ -7,8 +7,8 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/mrsmileg/transp/logger"
-	"github.com/mrsmileg/transp/problem"
+	problem "github.com/mrsmileg/transport"
+	"github.com/mrsmileg/transport/logger"
 )
 
 func postSolve(w http.ResponseWriter, r *http.Request) {
