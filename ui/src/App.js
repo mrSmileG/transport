@@ -72,7 +72,7 @@ class App extends Component {
           header: 'Providers vector data',
           meta: 'P1 - P(n) - Providers. Enter the resources count of every provider',
           description: (
-            <Matrix providersCount={providersCount} rows={providers} columns={columns} update={this.updateProvider} />
+            <Matrix providersCount={providersCount} rows={providers} columns={rows} update={this.updateProvider} />
           ),
           fluid: true,
           style: {padding: '20px 40px'}
@@ -102,10 +102,10 @@ class App extends Component {
     if (providersCount > 0 && consumersCount > 0) {
 
       for (let i = 0; i < providersCount; i++){
-        columns.pop();
+        rows.pop();
       }
       for (let i = 0; i < consumersCount; i++){
-          rows.pop();
+          columns.pop();
           columnsCons.pop();
       }
       providers.pop();
@@ -113,11 +113,12 @@ class App extends Component {
 
 
       for (let i = 0; i < providersCount; i++){
-        columns.push({ key: i, name: "P"+(i+1), editable: true })
+        rows.push({ key: i, name: "P"+(i+1), editable: true });
+        
       }
       for (let i = 0; i < consumersCount; i++){
-          rows.push({i: 0});
-          columnsCons.push({ key: i, name: "C"+(i+1), editable: true })
+        columnsCons.push({ key: i, name: "C"+(i+1), editable: true })
+        columns.push({ key: i, name: "C"+(i+1), editable: true })
       }
       providers.push({0: ''});
       consumers.push({0: ''});
@@ -145,19 +146,33 @@ class App extends Component {
       loading: true
     });
 
-    if (this.state.provVector[0] === undefined) return;
+    //if (this.state.provVector[0] === undefined) return;
     fetch('https://mighty-shelf-82507.herokuapp.com/', {
         method: 'POST',
         body: JSON.stringify({ 
-            providers: Object.values(
-              this.state.provVector[0])
-              .map(item => (parseInt(item, 10))),
-            consumers: Object.values(
-              this.state.consVector[0])
-              .map(item => (parseInt(item, 10))),
-            prices: Object.values(
-              this.state.prices)
-              .map(items => Object.values(items).map(item => (parseInt(item, 10))))
+          // providers: [12, 40, 33],
+          //     consumers: [20, 30, 10],
+          //     prices: [[3, 5, 7], [2, 4, 6], [9, 1, 8]]
+          providers: Object.values(
+            this.state.provVector[0])
+            .map(item => (parseInt(item, 10))),
+          consumers: Object.values(
+            this.state.consVector[0])
+            .map(item => (parseInt(item, 10))),
+          prices: Object.values(
+            this.state.prices)
+            .map(items => Object.values(items).map(item => (parseFloat(item, 10))))
+
+
+            // providers: Object.values(
+            //   this.state.provVector[0])
+            //   .map(item => (parseInt(item, 10))),
+            // consumers: Object.values(
+            //   this.state.consVector[0])
+            //   .map(item => (parseInt(item, 10))),
+            // prices: Object.values(
+            //   this.state.prices)
+            //   .map(items => Object.values(items).map(item => (parseInt(item, 10))))
         })
       })
       .then(res => res.json())
